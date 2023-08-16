@@ -1,0 +1,8 @@
+*.exe
+*.clang-format
+source
+*.png
+*.jpg
+*.mp4
+.idea
+cmake-build-debug
