@@ -24,5 +24,6 @@ public:
 
 void Convolution(cv::Mat& img, const LiteMatrix& kernal);
 void Convolution331(cv::Mat& img, const LiteMatrix& kernal, cv::Mat& img2);
+void Convolution331gray(cv::Mat& img, const LiteMatrix& kernal, cv::Mat& img2);
 
 #endif//TOYOFPICTURE_TOY_H

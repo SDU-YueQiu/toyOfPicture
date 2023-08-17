@@ -35,7 +35,7 @@ void Convolution(cv::Mat& img, const LiteMatrix& kernal)
 	{
 		for (int j = 0; j < img.cols; j++)
 		{
-			Vec3f bgr = { 0,0,0 };
+			double bgr[3] = { 0,0,0 };
 			for (int k = 0; k < 9; k++)
 			{
 				int kx = div[k][0] + 1, ky = div[k][1] + 1;
@@ -46,7 +46,11 @@ void Convolution(cv::Mat& img, const LiteMatrix& kernal)
 					bgr[t] += img.at<Vec3b>(ix, iy)[t] * kernal.matrix[kx][ky];
 			}
 			for (int t = 0; t < 3; t++)
+			{
+				if (bgr[t] > 255) bgr[t] = 255;
+				if (bgr[t] < 0) bgr[t] = 0;
 				img.at<Vec3b>(i, j)[t] = bgr[t];
+			}
 		}
 	}
 }
@@ -67,10 +71,35 @@ void Convolution331(cv::Mat& img, const LiteMatrix& kernal, Mat& img2)
 					continue;
 				g += img.at<uchar>(ix, iy) * kernal.matrix[kx][ky];
 			}
+			if (g > 255) g = 255;
+			if (g < -255)g = -255;
 			if (g > 0)
 				img2.at<Vec3b>(i, j)[0] = g;
 			else
 				img2.at<Vec3b>(i, j)[2] = -g;
+		}
+	}
+}
+
+void Convolution331gray(cv::Mat& img, const LiteMatrix& kernal, Mat& img2)
+{
+	int div[9][2] = { {-1,-1},{-1,0},{-1,1},{0,-1},{0,0},{0,1},{1,-1},{1,0},{1,1} };
+	for (int i = 0; i < img.rows; i++)
+	{
+		for (int j = 0; j < img.cols; j++)
+		{
+			int g = 0;
+			for (int k = 0; k < 9; k++)
+			{
+				int kx = div[k][0] + 1, ky = div[k][1] + 1;
+				int ix = i + div[k][0], iy = j + div[k][1];
+				if (ix < 0 || ix >= img.rows || iy < 0 || iy >= img.cols)
+					continue;
+				g += img.at<uchar>(ix, iy) * kernal.matrix[kx][ky];
+			}
+			if (g > 255) g = 255;
+			if (g < 0)g = 0;
+				img2.at<uchar>(i, j) = g;
 		}
 	}
 }
