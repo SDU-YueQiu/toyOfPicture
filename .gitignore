@@ -6,3 +6,8 @@ source
 *.mp4
 .idea
 cmake-build-debug
+.vs
+x64/
+*.sln
+*.vcxproj
+*.vcxproj.*
