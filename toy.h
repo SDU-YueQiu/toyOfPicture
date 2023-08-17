@@ -12,14 +12,17 @@
 class LiteMatrix
 {
 public:
-    std::vector<std::vector<int>> matrix;
-    int row;
-    int col;
-    LiteMatrix(int row, int col);
-    LiteMatrix(std::vector<std::vector<int>> matrix);
-    void CinInit();
+	std::vector<std::vector<double>> matrix;
+	int row;
+	int col;
+	LiteMatrix(int row = 0, int col = 0);
+	LiteMatrix(std::vector<std::vector<double>> matrix);
+	void CinInit();
+	void initMH33(double centernum);
+	void initNum(double num);
 };
 
-
+void Convolution(cv::Mat& img, const LiteMatrix& kernal);
+void Convolution331(cv::Mat& img, const LiteMatrix& kernal, cv::Mat& img2);
 
 #endif//TOYOFPICTURE_TOY_H
