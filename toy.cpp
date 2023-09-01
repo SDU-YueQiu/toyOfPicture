@@ -30,6 +30,7 @@ void LiteMatrix::CinInit()
 
 void Convolution(cv::Mat& img, const LiteMatrix& kernal)
 {
+	Mat ret(img.cols, img.rows, img.type());
 	int div[9][2] = { {-1,-1},{-1,0},{-1,1},{0,-1},{0,0},{0,1},{1,-1},{1,0},{1,1} };
 	for (int i = 0; i < img.rows; i++)
 	{
@@ -49,10 +50,11 @@ void Convolution(cv::Mat& img, const LiteMatrix& kernal)
 			{
 				if (bgr[t] > 255) bgr[t] = 255;
 				if (bgr[t] < 0) bgr[t] = 0;
-				img.at<Vec3b>(i, j)[t] = bgr[t];
+				ret.at<Vec3b>(i, j)[t] = bgr[t];
 			}
 		}
 	}
+	img = ret;
 }
 
 void Convolution331(cv::Mat& img, const LiteMatrix& kernal, Mat& img2)
@@ -79,6 +81,7 @@ void Convolution331(cv::Mat& img, const LiteMatrix& kernal, Mat& img2)
 				img2.at<Vec3b>(i, j)[2] = -g;
 		}
 	}
+
 }
 
 void Convolution331gray(cv::Mat& img, const LiteMatrix& kernal, Mat& img2)
@@ -99,7 +102,7 @@ void Convolution331gray(cv::Mat& img, const LiteMatrix& kernal, Mat& img2)
 			}
 			if (g > 255) g = 255;
 			if (g < 0)g = 0;
-				img2.at<uchar>(i, j) = g;
+			img2.at<uchar>(i, j) = g;
 		}
 	}
 }
@@ -122,4 +125,39 @@ void LiteMatrix::initNum(double num)
 	for (int i = 0; i < this->row; i++)
 		for (int j = 0; j < this->col; j++)
 			this->matrix[i][j] = num;
+}
+
+
+Mat toCrt(Mat& img)
+{
+	Mat ret(2 * img.rows, 2 * img.cols, CV_8UC3);
+
+	for (int i = 0; i < ret.rows; ++i)
+		for (int j = 0; j < ret.cols; ++j)
+		{
+			if (i % 2 == 0)
+				ret.at<Vec3b>(i, j) = img.at<Vec3b>(i / 2, j / 2);
+			else
+				ret.at<Vec3b>(i, j) = Vec3b(0, 0, 0);
+		}
+
+	//把ret图像投影到一个曲面上，曲面曲率比较低
+	Mat ret2(ret.rows, ret.cols, ret.type());
+	double k = 0.001;
+	for (int i = 0; i < ret2.rows; ++i)
+		for (int j = 0; j < ret2.cols; ++j)
+		{
+			int x = i - ret2.rows / 2;
+			int y = j - ret2.cols / 2;
+			double r = sqrt(x * x + y * y);
+			double theta = atan2(y, x);
+			double r2 = r + k * r * r;
+			int x2 = r2 * cos(theta) + ret2.rows / 2;
+			int y2 = r2 * sin(theta) + ret2.cols / 2;
+			if (x2 >= 0 && x2 < ret2.rows && y2 >= 0 && y2 < ret2.cols)
+				ret2.at<Vec3b>(i, j) = ret.at<Vec3b>(x2, y2);
+			else
+				ret2.at<Vec3b>(i, j) = Vec3b(0, 0, 0);
+		}
+	return ret2;
 }
